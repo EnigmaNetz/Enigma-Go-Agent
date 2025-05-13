@@ -1,4 +1,17 @@
 #!/bin/bash
+#
+# Unified Enigma Agent installer for Debian/Ubuntu and CentOS/RHEL/Fedora
+#
+# Usage:
+#   Place the appropriate .deb or .rpm package in the current directory.
+#   Run: sudo bash install-enigma-agent.sh
+#
+# This script auto-detects your OS, installs Zeek and tcpdump,
+# installs the Enigma Agent package, writes config if missing,
+# and restarts the systemd service if present.
+#
+# The old CentOS-specific script (installer/centos/install-enigma-agent.sh) has been removed.
+#
 set -eu
 
 # --- User-provided variables ---
@@ -46,17 +59,19 @@ case "$OS_ID" in
     fi
     dpkg -i "$PKG" || apt-get install -f -y
     ;;
-  centos|rhel|fedora)
+  rocky)
+    # --- Add Zeek repository ---
+    dnf install -y https://download.opensuse.org/repositories/security:/zeek/CentOS_8/security:zeek.repo
     # --- Install Zeek, tcpdump, and dependencies ---
-    yum install -y epel-release || true
-    yum install -y zeek tcpdump || dnf install -y zeek tcpdump
+    dnf install -y epel-release || true
+    dnf install -y zeek tcpdump || dnf install -y zeek tcpdump
     # --- Find and install Enigma Agent .rpm package ---
     PKG=$(ls ./*.rpm 2>/dev/null | head -n1)
     if [ -z "$PKG" ]; then
       echo "ERROR: No .rpm package found in the current directory."
       exit 1
     fi
-    yum install -y "$PKG" || dnf install -y "$PKG"
+    dnf install -y "$PKG" || dnf install -y "$PKG"
     ;;
   *)
     echo "ERROR: Unsupported Linux distribution: $OS_ID"

@@ -28,7 +28,6 @@ func NewLinuxCapturer() *LinuxCapturer {
 // Capture runs a single tcpdump capture and returns the output file path or error
 func (c *LinuxCapturer) Capture(ctx context.Context, config common.CaptureConfig) (string, error) {
 	c.outputDir = config.OutputDir
-	// Clean output directory of .pcap files before capture
 	entries, err := os.ReadDir(c.outputDir)
 	if err == nil {
 		for _, entry := range entries {

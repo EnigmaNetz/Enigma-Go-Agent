@@ -232,6 +232,50 @@ All logs are in TSV format, suitable for Zeek-style analysis.
 
 ---
 
+### Building and Testing the CentOS/RHEL Package
+
+1. **Build the .rpm package:**
+
+   ```sh
+   cd installer/centos
+   ./build-rpm.sh
+   ```
+
+   - This script will automatically build the Go binary if it is missing and package it as an RPM installer.
+   - The resulting `.rpm` file will be in `installer/centos/rpmbuild/RPMS/<arch>/enigma-agent-<version>-1.<arch>.rpm`.
+
+2. **Test install in a clean CentOS/RHEL environment:**
+   - **Recommended:** Use a VM or Docker container running your target CentOS/RHEL version.
+   - **Install the package:**
+
+     ```sh
+     sudo yum install -y epel-release
+     sudo yum install -y zeek tcpdump
+     sudo yum install -y ./rpmbuild/RPMS/<arch>/enigma-agent-<version>-1.<arch>.rpm
+     ```
+
+   - Or use the provided install script (handles config and service):
+
+     ```sh
+     cd installer/centos
+     sudo bash install-enigma-agent.sh
+     ```
+
+   - **Verify:**
+     - The agent binary is installed to `/usr/local/bin/enigma-agent`.
+     - The systemd service is installed and can be started with `sudo systemctl start enigma-agent`.
+     - Uninstall with `sudo yum remove enigma-agent` and verify cleanup.
+
+3. **Optional: Lint the package**
+
+   ```sh
+   rpmlint ./rpmbuild/RPMS/<arch>/enigma-agent-<version>-1.<arch>.rpm
+   ```
+
+   - Fix any errors or warnings for best RPM compliance.
+
+---
+
 ## Platform Requirements
 
 - **Windows:**
